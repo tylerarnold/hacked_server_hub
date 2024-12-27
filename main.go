@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"sync"
+	"os/exec"
 )
 
 type Post struct {
@@ -28,6 +29,9 @@ func main() {
 	fmt.Println("Server is running at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
+
+
+
 
 func postsHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -57,6 +61,21 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+
+func toggleUSBPower(){
+	cmd := exec.Command("/Users/tylerarnold/coding/uhubctl/uhubctl", "-a","toggle", "-l", "2-1", "-p", "3")
+
+	// The `Output` method executes the command and
+	// collects the output, returning its value
+	out, err := cmd.Output()
+	if err != nil {
+		// if there was any error, print it here
+		fmt.Println("could not run command: ", err)
+	}
+	// otherwise, print the output from running the command
+	fmt.Println("Output: ", string(out))
+}
+
 func handleGetPosts(w http.ResponseWriter, r *http.Request) {
 	postsMu.Lock()
 	defer postsMu.Unlock()
@@ -65,7 +84,7 @@ func handleGetPosts(w http.ResponseWriter, r *http.Request) {
 	for _, p := range posts {
 		ps = append(ps, p)
 	}
-
+	toggleUSBPower()
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ps)
 }
