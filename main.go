@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"sync"
 	"os/exec"
+	 "time"
 )
 
 type Post struct {
@@ -25,7 +26,7 @@ var (
 func main() {
 	http.HandleFunc("/posts", postsHandler)
 	http.HandleFunc("/posts/", postHandler)
-
+	setupRpi4USBPower()
 	fmt.Println("Server is running at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -61,19 +62,42 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//
+// the Rpi4 has ganged ports so we have to disable all to be able 
+// to toggle one
+//
+// sudo uhubctl -a on -l 1-1 -p 2
 
-func toggleUSBPower(){
-	cmd := exec.Command("/Users/tylerarnold/coding/uhubctl/uhubctl", "-a","toggle", "-l", "2-1", "-p", "3")
-
-	// The `Output` method executes the command and
-	// collects the output, returning its value
+func disableRpi4Port(p int){
+	cmd := exec.Command("uhubctl", "-a","off", "-l", "1-1", "-p", strconv.Itoa(p))
 	out, err := cmd.Output()
 	if err != nil {
-		// if there was any error, print it here
 		fmt.Println("could not run command: ", err)
 	}
-	// otherwise, print the output from running the command
 	fmt.Println("Output: ", string(out))
+}
+
+func enableRpi4Port(p int){
+	cmd := exec.Command("uhubctl", "-a","on", "-l", "1-1", "-p", strconv.Itoa(p))
+	out, err := cmd.Output()
+	if err != nil {
+		fmt.Println("could not run command: ", err)
+	}
+	fmt.Println("Output: ", string(out))
+}
+
+func setupRpi4USBPower(){
+
+	disableRpi4Port(1)
+	disableRpi4Port(2)
+	disableRpi4Port(3)
+	disableRpi4Port(4)
+}
+
+func toggleUSBPower(p int){
+	disableRpi4Port(p)
+	time.Sleep(2 * time.Second) 
+	enableRpi4Port(p)
 }
 
 func handleGetPosts(w http.ResponseWriter, r *http.Request) {
@@ -84,7 +108,7 @@ func handleGetPosts(w http.ResponseWriter, r *http.Request) {
 	for _, p := range posts {
 		ps = append(ps, p)
 	}
-	toggleUSBPower()
+	toggleUSBPower(2)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ps)
 }
