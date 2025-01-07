@@ -69,7 +69,7 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 // sudo uhubctl -a on -l 1-1 -p 2
 
 func disableRpi4Port(p int){
-	cmd := exec.Command("/usr/sbin/uhubctl", "-a","off", "-l", "1-1", "-p", strconv.Itoa(p))
+	cmd := exec.Command("sudo","/usr/sbin/uhubctl", "-a","off", "-l", "1-1", "-p", strconv.Itoa(p))
 	out, err := cmd.Output()
 	if err != nil {
 		fmt.Println("could not run command: ", err)
@@ -78,7 +78,7 @@ func disableRpi4Port(p int){
 }
 
 func enableRpi4Port(p int){
-	cmd := exec.Command("/usr/sbin/uhubctl", "-a","on", "-l", "1-1", "-p", strconv.Itoa(p))
+	cmd := exec.Command("sudo","/usr/sbin/uhubctl", "-a","on", "-l", "1-1", "-p", strconv.Itoa(p))
 	out, err := cmd.Output()
 	if err != nil {
 		fmt.Println("could not run command: ", err)
