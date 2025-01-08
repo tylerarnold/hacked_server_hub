@@ -81,7 +81,8 @@ func enableRpi4Port(p int){
 	cmd := exec.Command("sudo","/usr/sbin/uhubctl", "-a","on", "-l", "1-1", "-p", strconv.Itoa(p))
 	out, err := cmd.Output()
 	if err != nil {
-		fmt.Println("could not run command: ", err)
+		fmt.Println("port", p)
+		fmt.Println("could not run command : ", err)
 	}
 	fmt.Println("Output: ", string(out))
 }
