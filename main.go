@@ -26,7 +26,7 @@ var (
 func main() {
 	http.HandleFunc("/posts", postsHandler)
 	http.HandleFunc("/posts/", postHandler)
-	setupRpi4USBPower()
+	setupRpi4USBPower(2)
 	fmt.Println("Server is running at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -86,12 +86,14 @@ func enableRpi4Port(p int){
 	fmt.Println("Output: ", string(out))
 }
 
-func setupRpi4USBPower(){
-
-	disableRpi4Port(1)
-	disableRpi4Port(2)
-	disableRpi4Port(3)
-	disableRpi4Port(4)
+func setupRpi4USBPower(p int){
+	for i := 0; i < 4; i++ {
+        if p == i {
+            enableRpi4Port(p)	
+        } else {
+        	disableRpi4Port(p)
+        }
+    }
 }
 
 func toggleUSBPower(p int){
