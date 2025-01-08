@@ -89,7 +89,7 @@ func enableRpi4Port(p int){
 }
 
 func setupRpi4USBPower(p int){
-	for i := 0; i < 4; i++ {
+	for i := 1; i <= 4; i++ {
         if p == i {
             enableRpi4Port(i)
         } else {
