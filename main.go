@@ -78,8 +78,10 @@ func handleTogglePower(w http.ResponseWriter) {
 	p.ID = powerCycleCount
 	toggleUSBPower(2)
 
+	ps := make([]PowerCycleRecord, 0,1)
+	ps = append(ps, p)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(p)
+	json.NewEncoder(w).Encode(ps)
 }
 
 func togglePowerHandler(w http.ResponseWriter, r *http.Request) {
@@ -143,7 +145,6 @@ func handleGetPosts(w http.ResponseWriter, r *http.Request) {
 	for _, p := range posts {
 		ps = append(ps, p)
 	}
-	//toggleUSBPower(2)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ps)
 }
