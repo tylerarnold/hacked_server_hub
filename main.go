@@ -17,16 +17,23 @@ type Post struct {
 	Body string `json:"body"`
 }
 
+type PowerCycleRecord struct {
+	ID   int    `json:"id"`
+	Body string `json:"body"`
+}
+
 var (
 	posts   = make(map[int]Post)
 	nextID  = 1
 	postsMu sync.Mutex
+	powerCycleCount = 0
 )
 
 func main() {
 	http.HandleFunc("/posts", postsHandler)
 	http.HandleFunc("/posts/", postHandler)
 	setupRpi4USBPower(2)
+	http.HandleFunc("/power",togglePowerHandler)
 	fmt.Println("Server is running at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -61,6 +68,29 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
+
+func handleTogglePower(w http.ResponseWriter) {
+	var p PowerCycleRecord
+	postsMu.Lock()
+	defer postsMu.Unlock()
+
+	powerCycleCount += 1 
+	p.ID = powerCycleCount
+	toggleUSBPower(2)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(p)
+}
+
+func togglePowerHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		handleTogglePower(w)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+}
+
 
 //
 // the Rpi4 has ganged ports so we have to disable all to be able 
@@ -113,7 +143,7 @@ func handleGetPosts(w http.ResponseWriter, r *http.Request) {
 	for _, p := range posts {
 		ps = append(ps, p)
 	}
-	toggleUSBPower(2)
+	//toggleUSBPower(2)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ps)
 }
