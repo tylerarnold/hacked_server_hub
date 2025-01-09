@@ -42,6 +42,7 @@ func main() {
 
 
 func postsHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("postsHandler")
 	switch r.Method {
 	case "GET":
 		handleGetPosts(w, r)
@@ -82,6 +83,7 @@ func handleTogglePower(w http.ResponseWriter) {
 	ps = append(ps, p)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(ps)
+	fmt.Println("handleTogglePower")
 }
 
 func togglePowerHandler(w http.ResponseWriter, r *http.Request) {
